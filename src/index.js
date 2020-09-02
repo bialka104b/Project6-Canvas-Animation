@@ -28,8 +28,8 @@ class Niebo {
         y: Math.random() * this.height, //losujemy pozycje y od 0 do wysokości ekranu
         radius: radiusRandom,
         radius2: radiusRandom,
-        color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, //metoda do losowego koloru gwiazdek
-        speed: Math.random() + 1, //szybkość poruszania sie gwiazdy od 0 do 2
+        color: `#${Math.floor(Math.random() * 16777215 + 500).toString(16)}`, //metoda do losowego koloru gwiazdek
+        speed: Math.random() + 0.4, //szybkość poruszania sie gwiazdy od 0 do 2
       });
     }
 
@@ -52,7 +52,7 @@ class Niebo {
 
       if (star.x > this.width) {
         //jeśli gwiazda przekroczy szerokość ekranu to wraca na początek ekranu
-        star.x = -2;
+        star.x = 0;
       }
       if (star.y > this.height || star.y < 0) {
         star.x = (Math.random() * this.width) / 2;
@@ -62,19 +62,47 @@ class Niebo {
   }
 
   generatedRadomConstellation() {
-    const x = (this.width / 2) * Math.random() + 0.5;
-    const y = (this.height / 2) * Math.random() + 0.5;
-    star.radius = this.height / 2;
+    const x = this.width / 2 + Math.random() * 500 - 250;
+    const y = this.height / 2 + Math.random() * 300 - 150;
+    const radius = (this.height / 2) * Math.random() * 0.5 + 0.5;
 
     this.constellation = {
-      stars: this.stars.filter((star) => {
-        //zbiór gwiazd tworzymy na podstawie oryginalnej tablicy gwiazd
-        star.x > x - radius && //sprawdzam czy pozycja x gwiazdy jest większa od środka okręgu minus promień (x - radius)
-          star.x < x + radius && //sprawdzam czy pozycja x gwiazdy nie wychodzi poza prawą strone okręgu o promieniu radius
-          star.y > y - radius &&
-          star.y < y + radius;
-      }),
+      stars: this.stars
+        .filter((star) => {
+          //zbiór gwiazd tworzymy na podstawie oryginalnej tablicy gwiazd
+          return (
+            star.x > x - radius && //sprawdzam czy pozycja x gwiazdy jest większa od środka okręgu minus promień (x - radius)
+            star.x < x + radius && //sprawdzam czy pozycja x gwiazdy nie wychodzi poza prawą strone okręgu o promieniu radius
+            star.y > y - radius &&
+            star.y < y + radius
+          );
+        })
+        .slice(0, Math.round(Math.random() * 8 + 2)), //obciecie naszej tablicy tak aby konstelacja miala od 3 do 7 gwiazd
     };
+  }
+
+  drawConstellation() {
+    //rysowanie konstelacji
+    const { stars } = this.constellation; //odczyt zbioru gwiazd naszej konstelacji
+    const starCounter = stars.length; //odczyt ile jest gwiazd w tym okręgu
+
+    if (starCounter > 1) {
+      //konstelacje rysujemy tylko wtedy jeśli jest conajmniej 2 wylosowane gwiazdy()obsługa błędu
+      const firstStar = stars[0];
+
+      this.context.beginPath();
+      this.context.moveTo(firstStar.x, firstStar.y); //pozycja pierwszej gwiazdy
+      this.context.lineTo(stars[1].x, stars[1].y); //[pierwsza linia między pierwsza a druga gwiazdą]
+
+      for (let i = 1; i < starCounter - 1; i++) {
+        const next_star = stars[i + 1];
+        this.context.lineTo(next_star.x, next_star.y); //[druga linia między druga gwiazdą i trzecią i tak dalej
+      }
+      this.context.lineTo(firstStar.x, firstStar.y); //konstelacja będzie zawsze zamknięta
+
+      this.context.strokeStyle = "white";
+      this.context.stroke();
+    }
   }
 
   drawBackground() {
@@ -128,6 +156,7 @@ class Niebo {
     this.clearCanvas(); //czyszczenie
     this.draw_Stars(); //rysowanie
     this.updateStars(); //aktualizacja
+    this.drawConstellation();
     this.drawBackground(); //tło
 
     window.requestAnimationFrame(() => this.draw()); //funkcja do obsługi animacji, zastosowana rekurencja
@@ -136,8 +165,8 @@ class Niebo {
   activationOfDrawing() {
     //uruchomienie rysowania
     this.initializationCanvas();
-    this.generatedStars(50); //parametr ilość generowanych gwiazd
-
+    this.generatedStars(100); //parametr ilość generowanych gwiazd
+    this.generatedRadomConstellation();
     this.draw();
   }
 }
