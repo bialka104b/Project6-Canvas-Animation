@@ -5,13 +5,14 @@ class Niebo {
     this.context = canvas.getContext("2d");
     this.width = window.innerWidth; //pobieramy szerokość przegladarki
     this.height = window.innerHeight; //pobieramy wysokość przegladarki
-    this.lastConstelation = 0;//zmienna do przechowywania kiedy wyrenderowała sie ostatnia konstelacja
-    this.nextConstellation = Math.random()*3000;//kiedy ma zostac wygenerowana pierwsza konstelacja(po 0 do 3000 sek)
+    this.lastConstelation = 0; //zmienna do przechowywania kiedy wyrenderowała sie ostatnia konstelacja
+    this.nextConstellation = Math.random() * 3000; //kiedy ma zostac wygenerowana pierwsza konstelacja(po 0 do 3000 sek)
     this.constellation = {
-      stars:[],
+      stars: [],
       isClosed: false,
-      width: null//aktualna szerokośc lini w konstelacji
-    }
+      width: null, //aktualna szerokośc lini w konstelacji
+    };
+    this.lastedUpdate = 0;
   }
 
   initializationCanvas() {
@@ -53,8 +54,8 @@ class Niebo {
   updateStars() {
     //przechodź pętlą po każdej gwiazdce z osobna i zaktualizuj
     this.stars.forEach((star) => {
-      star.x = star.x + star.speed; //zmiana prędkości każdej z gwiazd
-      star.y = star.y - (star.speed * (this.width / 2 - star.x)) / 1500;
+      star.x = star.x + star.speed * (this.delta / 16); //zmiana prędkości każdej z gwiazd
+      star.y = star.y - (star.speed * (this.delta / 16) * (this.width / 2 - star.x)) / 1500;
       star.radius = star.radius2 * (Math.random() / 3 + 0.9); //migotanie gwiazd
 
       if (star.x > this.width) {
@@ -85,14 +86,15 @@ class Niebo {
           );
         })
         .slice(0, Math.round(Math.random() * 8 + 2)), //obciecie naszej tablicy tak aby konstelacja miala od 3 do 7 gwiazd
-        isClosed: Math.random() > 0.5,
-        width:2
+      isClosed: Math.random() > 0.5,
+      width: 2,
     };
   }
 
-  updateParametersConstellation(){
-    if(this.constellation.width>0){//jeśli szerokośc konstelacji  > 0
-      this.constellation.width = this.constellation.width - 0.07;
+  updateParametersConstellation() {
+    if (this.constellation.width > 0) {
+      //jeśli szerokośc konstelacji  > 0
+      this.constellation.width = this.constellation.width - 0.07 * (this.delta / 16);
     } else {
       this.constellation.width = 0;
     }
@@ -115,7 +117,7 @@ class Niebo {
         const next_star = stars[i + 1];
         this.context.lineTo(next_star.x, next_star.y); //[druga linia między druga gwiazdą i trzecią i tak dalej
       }
-      if(isClosed){
+      if (isClosed) {
         this.context.lineTo(firstStar.x, firstStar.y); //konstelacja będzie zawsze zamknięta
       }
 
@@ -170,9 +172,10 @@ class Niebo {
     this.context.restore(); //przywracanie stanu kanwasa
   }
 
-  draw(now) {//now to czas od ostatniego renderu
+  draw(now) {
+    //now to czas od ostatniego renderu
     //czyszczenie kanwasa, rysowanie gwiazd, animowanie gwiazd, aktualizacja ich pozycji
-    //console.log(now);
+    this.delta = now - this.lastedUpdate;
     this.clearCanvas(); //czyszczenie
     this.draw_Stars(); //rysowanie
     this.updateStars(); //aktualizacja
@@ -180,21 +183,23 @@ class Niebo {
     this.updateParametersConstellation();
     this.drawBackground(); //tło
 
-    if(now - this.lastConstelation> this.nextConstellation){//jesli aktualny czas minus czas ostatniej konstelacji
-      this.lastConstelation = now;//aktualizujemy czasy
-      this.nextConstellation = Math.random()*3000 +1000;
+    if (now - this.lastConstelation > this.nextConstellation) {
+      //jesli aktualny czas minus czas ostatniej konstelacji
+      this.lastConstelation = now; //aktualizujemy czasy
+      this.nextConstellation = Math.random() * 3000 + 1000;
       this.generatedRadomConstellation();
     }
-
+    this.lastedUpdate = now;
     window.requestAnimationFrame((now) => this.draw(now)); //funkcja do obsługi animacji, zastosowana rekurencja
   }
 
-  activationOfDrawing() {//run()
+  activationOfDrawing() {
+    //run()
     //uruchomienie rysowania
     this.initializationCanvas();
     this.generatedStars(100); //parametr ilość generowanych gwiazd
     // this.generatedRadomConstellation();
-    this.draw();
+    this.draw(0);
   }
 }
 
