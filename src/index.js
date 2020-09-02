@@ -108,7 +108,6 @@ class Niebo {
     if (starCounter > 1) {
       //konstelacje rysujemy tylko wtedy jeśli jest conajmniej 2 wylosowane gwiazdy()obsługa błędu
       const firstStar = stars[0];
-
       this.context.beginPath();
       this.context.moveTo(firstStar.x, firstStar.y); //pozycja pierwszej gwiazdy
       this.context.lineTo(stars[1].x, stars[1].y); //[pierwsza linia między pierwsza a druga gwiazdą]
@@ -152,7 +151,6 @@ class Niebo {
 
   drawStar(star) {
     this.context.save(); //zapisanie stanu kanwasa
-
     this.context.fillStyle = star.color; //ustawiamy kolor gwiazdy
     this.context.beginPath(); //tu zaczynamy rysować
     this.context.translate(star.x, star.y); //rysujemy od pozycji x i y naszej gwiazdy(środek naszej gwiazdki)
@@ -164,7 +162,7 @@ class Niebo {
       // 360:4 ramiona = 90 ,  360:8 = 45
       this.context.lineTo(0, (0 - star.radius * 0.5) * 0.5); //linia do środka gwiazdy
       this.context.rotate((Math.PI / 180) * 45); //chcemy sie obrócic o 45stopni(wyrażona wartość w radianach)
-      // 360:4 ramiona = 90
+      // 360:4 ramiona = 90 360:8 = 45
       this.context.lineTo(0, 0 - star.radius); //linia na zewnątrz gwiazdy
     }
 
@@ -194,11 +192,9 @@ class Niebo {
   }
 
   activationOfDrawing() {
-    //run()
     //uruchomienie rysowania
     this.initializationCanvas();
     this.generatedStars(100); //parametr ilość generowanych gwiazd
-    // this.generatedRadomConstellation();
     this.draw(0);
   }
 }
