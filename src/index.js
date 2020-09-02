@@ -27,7 +27,9 @@ class Niebo {
         x: Math.random() * this.width, //losujemy pozycje x od 0 do szerokości ekranu
         y: Math.random() * this.height, //losujemy pozycje y od 0 do wysokości ekranu
         radius: radiusRandom,
+        radius2: radiusRandom,
         color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, //metoda do losowego koloru gwiazdek
+        speed: Math.random() + 1, //szybkość poruszania sie gwiazdy od 0 do 2
       });
     }
 
@@ -39,6 +41,47 @@ class Niebo {
       //za pomoca pętli rysujemy wiele gwiazdek przechodząc po każdym elemencie tablicy star
       this.drawStar(star);
     });
+  }
+
+  updateStars() {
+    //przechodź pętlą po każdej gwiazdce z osobna i zaktualizuj
+    this.stars.forEach((star) => {
+      star.x = star.x + star.speed; //zmiana prędkości każdej z gwiazd
+      star.y = star.y - (star.speed * (this.width / 2 - star.x)) / 1500;
+      star.radius = star.radius2 * (Math.random() / 3 + 0.9); //migotanie gwiazd
+
+      if (star.x > this.width) {
+        //jeśli gwiazda przekroczy szerokość ekranu to wraca na początek ekranu
+        star.x = -2;
+      }
+      if (star.y > this.height || star.y < 0) {
+        star.x = (Math.random() * this.width) / 2;
+        star.y = (Math.random() * this.height) / 5 + (this.height / 5) * 3;
+      }
+    });
+  }
+
+  drawBackground() {
+    //rysowanie gradientowego tła
+    let gradient = this.context.createRadialGradient(
+      this.width / 2, //x
+      this.height / 2, //y
+      250, //promień
+      this.width / 2,
+      this.height / 2,
+      this.width / 2, //promień
+    );
+    gradient.addColorStop(0,"rgba(0,0,0,0)");
+    gradient.addColorStop(1,"rgba(0,0,0,0.8)");
+
+    this.context.fillStyle = gradient;
+    this.context.fillRect(0, 0, this.width, this.height);
+  }
+
+  clearCanvas() {
+    //metoda do czyszczenia canvasa za każdym rysowaniem gwiazdy
+    this.context.fillStyle = "black"; //kolor tła
+    this.context.fillRect(0, 0, this.width, this.height); //rysowanie prostokąta na nowo
   }
 
   drawStar(star) {
@@ -65,15 +108,20 @@ class Niebo {
 
   draw() {
     //czyszczenie kanwasa, rysowanie gwiazd, animowanie gwiazd, aktualizacja ich pozycji
-    //console.log('draw');
+
+    this.clearCanvas(); //czyszczenie
+    this.draw_Stars(); //rysowanie
+    this.updateStars(); //aktualizacja
+    this.drawBackground()//tło
+
     window.requestAnimationFrame(() => this.draw()); //funkcja do obsługi animacji, zastosowana rekurencja
-    this.draw_Stars();
   }
 
   activationOfDrawing() {
     //uruchomienie rysowania
     this.initializationCanvas();
-    this.generatedStars(30); //parametr ilość generowanych gwiazd
+    this.generatedStars(50); //parametr ilość generowanych gwiazd
+    
     this.draw();
     // this.drawStar({//próbne wywołanie gwiazdki
     //   x: 100, //pozycja
