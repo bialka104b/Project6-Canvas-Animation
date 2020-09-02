@@ -61,6 +61,22 @@ class Niebo {
     });
   }
 
+  generatedRadomConstellation() {
+    const x = (this.width / 2) * Math.random() + 0.5;
+    const y = (this.height / 2) * Math.random() + 0.5;
+    star.radius = this.height / 2;
+
+    this.constellation = {
+      stars: this.stars.filter((star) => {
+        //zbiór gwiazd tworzymy na podstawie oryginalnej tablicy gwiazd
+        star.x > x - radius && //sprawdzam czy pozycja x gwiazdy jest większa od środka okręgu minus promień (x - radius)
+          star.x < x + radius && //sprawdzam czy pozycja x gwiazdy nie wychodzi poza prawą strone okręgu o promieniu radius
+          star.y > y - radius &&
+          star.y < y + radius;
+      }),
+    };
+  }
+
   drawBackground() {
     //rysowanie gradientowego tła
     let gradient = this.context.createRadialGradient(
@@ -71,8 +87,8 @@ class Niebo {
       this.height / 2,
       this.width / 2, //promień
     );
-    gradient.addColorStop(0,"rgba(0,0,0,0)");
-    gradient.addColorStop(1,"rgba(0,0,0,0.8)");
+    gradient.addColorStop(0, "rgba(0,0,0,0)");
+    gradient.addColorStop(1, "rgba(0,0,0,0.8)");
 
     this.context.fillStyle = gradient;
     this.context.fillRect(0, 0, this.width, this.height);
@@ -112,7 +128,7 @@ class Niebo {
     this.clearCanvas(); //czyszczenie
     this.draw_Stars(); //rysowanie
     this.updateStars(); //aktualizacja
-    this.drawBackground()//tło
+    this.drawBackground(); //tło
 
     window.requestAnimationFrame(() => this.draw()); //funkcja do obsługi animacji, zastosowana rekurencja
   }
@@ -121,14 +137,8 @@ class Niebo {
     //uruchomienie rysowania
     this.initializationCanvas();
     this.generatedStars(50); //parametr ilość generowanych gwiazd
-    
+
     this.draw();
-    // this.drawStar({//próbne wywołanie gwiazdki
-    //   x: 100, //pozycja
-    //   y: 200,
-    //   color: "red", //kolor
-    //   radius: 50, //promień gwiazdy
-    // });
   }
 }
 
